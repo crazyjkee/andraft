@@ -25,7 +25,7 @@ import com.basegeo.andraft.LocationUpdateRequester;
 import com.getgeo.andraft.PlatformSpecificImplementationFactory;
 import com.statica.andraft.GeoConstants;
 import com.statica.andraft.Utils;
-
+ 
 public class MainActivity extends Activity {
 	Context mContext=this;
 	AsyncHttpPost mt;

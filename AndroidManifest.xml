@@ -28,5 +28,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name="com.services.andraft.Services"></service>
+        <receiver android:name="com.receiver.andraft.LocationChangedReceiver"/>
+    <receiver android:name="com.receiver.andraft.PassiveLocationChangedReceiver"/>
+    <receiver android:name="com.receiver.andraft.MyBroadReceiv">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+      </intent-filter>
+    </receiver>
     </application>
 </manifest>

@@ -1,7 +1,7 @@
 package com.getgeo.andraft;
 
 import java.util.List;
-import com.basegeo.andraft.ILastLocationFinder;
+
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -13,6 +13,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
+import android.util.Log;
+
+import com.basegeo.andraft.ILastLocationFinder;
 
 
 public class GingerbreadLastLocationFinder implements ILastLocationFinder {
@@ -36,8 +39,8 @@ public class GingerbreadLastLocationFinder implements ILastLocationFinder {
 	    criteria = new Criteria();
 	    criteria.setAccuracy(Criteria.ACCURACY_LOW);
 	    
-	    Intent updateIntent = new Intent(SINGLE_LOCATION_UPDATE_ACTION);  
-	    singleUpatePI = PendingIntent.getBroadcast(context, 0, updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+	    //Intent updateIntent = new Intent(SINGLE_LOCATION_UPDATE_ACTION);  
+	   //singleUpatePI = PendingIntent.getBroadcast(context, 0, updateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 	  }
 	  
 	  
@@ -82,14 +85,14 @@ public class GingerbreadLastLocationFinder implements ILastLocationFinder {
 	    @Override
 	    public void onReceive(Context context, Intent intent) {
 	      context.unregisterReceiver(singleUpdateReceiver);
-	      
+	      Log.d("myLogs",this.getClass().getSimpleName()+" singleUpdateReceiver");
 	      String key = LocationManager.KEY_LOCATION_CHANGED;
 	      Location location = (Location)intent.getExtras().get(key);
 	      
 	      if (locationListener != null && location != null)
 	        locationListener.onLocationChanged(location);
 	      
-	      //locationManager.removeUpdates(singleUpatePI);
+	      locationManager.removeUpdates(singleUpatePI);
 	    }
 	  };
 
@@ -99,6 +102,6 @@ public class GingerbreadLastLocationFinder implements ILastLocationFinder {
 	  }
 
 	  public void cancel() {
-	   // locationManager.removeUpdates(singleUpatePI);
+	    locationManager.removeUpdates(singleUpatePI);
 	  }
 	}

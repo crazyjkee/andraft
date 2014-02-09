@@ -2,6 +2,7 @@ package com.getgeo.andraft;
 
 import android.content.Context;
 import android.location.LocationManager;
+import android.util.Log;
 
 import com.basegeo.andraft.ILastLocationFinder;
 import com.basegeo.andraft.LocationUpdateRequester;
@@ -16,7 +17,12 @@ public class PlatformSpecificImplementationFactory {
 	   * @return LastLocationFinder
 	   */
 	  public static ILastLocationFinder getLastLocationFinder(Context context) {
-	    return GeoConstants.SUPPORTS_GINGERBREAD ? new GingerbreadLastLocationFinder(context) : new LegacyLastLocationFinder(context);
+		  if(GeoConstants.SUPPORTS_GINGERBREAD ){
+			  Log.d("myLogs","ILastLocationFinder return GingerbreadLoastLocation");
+	    return  new GingerbreadLastLocationFinder(context);}
+		  else{
+			  Log.d("myLogs","ILastLocationFinder return LegacyLastLocation");
+			  return new LegacyLastLocationFinder(context);}
 	  }
 	  
 	  /**

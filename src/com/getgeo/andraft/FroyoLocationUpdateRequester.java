@@ -11,7 +11,7 @@ import android.location.LocationManager;
 
 public class FroyoLocationUpdateRequester extends LocationUpdateRequester{
 
-	  public FroyoLocationUpdateRequester(LocationManager locationManager) {
+	public FroyoLocationUpdateRequester(LocationManager locationManager) {
 	    super(locationManager);
 	  }
 

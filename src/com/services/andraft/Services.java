@@ -136,7 +136,7 @@ private Criteria criteria;
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.d("myLogs","onStartCommand");
 		return super.onStartCommand(intent, flags, startId);
-	}
+	} 
 
 	@Override
 	public IBinder onBind(Intent arg0) {

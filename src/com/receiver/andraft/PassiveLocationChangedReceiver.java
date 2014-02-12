@@ -27,9 +27,6 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
 	      location = (Location)intent.getExtras().get(key);  
 	      Log.d("myLogs","Passive action:"+location.getLongitude());
 	      Intent passiveintent = new Intent(GeoConstants.PASSIVE_LOCATION_UPDATE);
-	      
-	      passiveintent.putExtra("latitude", (long)location.getLatitude());
-	      passiveintent.putExtra("longitude",(long)location.getLongitude());
 	        Log.d("myLogs","sendBroadcast(passiveintent)");
 	        passiveintent.putExtra("lal", location);
 	        context.sendBroadcast(passiveintent);  

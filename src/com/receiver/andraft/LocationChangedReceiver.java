@@ -27,6 +27,7 @@ public class LocationChangedReceiver extends BroadcastReceiver {
 	    if (intent.hasExtra(providerEnabledKey)) {
 	      if (!intent.getBooleanExtra(providerEnabledKey, true)) {
 	        Intent providerDisabledIntent = new Intent(GeoConstants.ACTIVE_LOCATION_UPDATE_PROVIDER_DISABLED);
+	        Log.d("myLogs","sendBroadcast(providerDisabled)");
 	        context.sendBroadcast(providerDisabledIntent);    
 	      }
 	    }

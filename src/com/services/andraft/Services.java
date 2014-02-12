@@ -28,54 +28,55 @@ import com.statica.andraft.GeoConstants;
 public class Services extends Service {
 	LocationManager locationManager;
 protected ILastLocationFinder lastLocationFinder;
-private PendingIntent locationListenerPendingIntent;
+//private PendingIntent locationListenerPendingIntent;
 private PendingIntent locationListenerPassivePendingIntent;
 private LocationUpdateRequester locationUpdateRequester;
 private Criteria criteria;
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Intent activeIntent = new Intent(this, LocationChangedReceiver.class);
-	    locationListenerPendingIntent = PendingIntent.getBroadcast(this, 0, activeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		//Intent activeIntent = new Intent(this, LocationChangedReceiver.class);
+	    //locationListenerPendingIntent = PendingIntent.getBroadcast(this, 0, activeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 	    Intent passiveIntent = new Intent(this, PassiveLocationChangedReceiver.class);
 	    locationListenerPassivePendingIntent = PendingIntent.getBroadcast(this, 0, passiveIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		Log.d("myLogs","onCreate");
+		
 		locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 		criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		criteria.setAltitudeRequired(false);
 		criteria.setBearingRequired(false);
 		criteria.setCostAllowed(false);
-		if (GeoConstants.USE_GPS_WHEN_ACTIVITY_VISIBLE)
-		      criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		    else
 		      criteria.setPowerRequirement(Criteria.POWER_LOW);
 	    lastLocationFinder = PlatformSpecificImplementationFactory.getLastLocationFinder(this);
-	    lastLocationFinder.setChangedLocationListener(locationListener);
 	    locationUpdateRequester = PlatformSpecificImplementationFactory.getLocationUpdateRequester(locationManager);
 	    Location location = lastLocationFinder.getLastBestLocation(GeoConstants.MAX_DISTANCE, 
 	            GeoConstants.MAX_TIME);
 		updateWithNewLocation(location);
-		//locationManager.requestLocationUpdates(provider, GeoConstants.MAX_TIME, 10, locationListener);
 		requestLocationUpdates();
 		}
 	 private void updateWithNewLocation(Location location) {
-		Log.d("myLogs","Долгота: "+location.getLongitude()+" Широта:"+location.getLatitude());
+		Log.d("myLogs","Долгота:"+location.getLongitude()+" Широта:"+location.getLatitude());
+
 	}
 	 protected void requestLocationUpdates() {
 		 Log.d("myLogs","requestLocationUpdates");
 		    // Normal updates while activity is visible.
-		    locationUpdateRequester.requestLocationUpdates(GeoConstants.MAX_TIME, GeoConstants.MAX_DISTANCE, criteria, locationListenerPendingIntent);
+		    //locationUpdateRequester.requestLocationUpdates(GeoConstants.MAX_TIME, GeoConstants.MAX_DISTANCE, criteria, locationListenerPendingIntent);
 
-		    // Passive location updates from 3rd party apps when the Activity isn't visible.
+		    //сервис
 		    locationUpdateRequester.requestPassiveLocationUpdates(GeoConstants.PASSIVE_MAX_TIME, GeoConstants.PASSIVE_MAX_DISTANCE, locationListenerPassivePendingIntent);
 		    
 		    // Register a receiver that listens for when the provider I'm using has been disabled. 
 		    IntentFilter intentFilter = new IntentFilter(GeoConstants.ACTIVE_LOCATION_UPDATE_PROVIDER_DISABLED);
 		    registerReceiver(locProviderDisabledReceiver, intentFilter);
+		    
+		    //Регистрируем ловлю passive location
+		    IntentFilter intentFilter1 = new IntentFilter(GeoConstants.PASSIVE_LOCATION_UPDATE);
+		    registerReceiver(locPassiveReceiver,intentFilter1);
 
-		    // Register a receiver that listens for when a better provider than I'm using becomes available.
+		    //регистрируем ресивер который слушает лучшего провайдера
 		    String bestProvider = locationManager.getBestProvider(criteria, false);
 		    String bestAvailableProvider = locationManager.getBestProvider(criteria, true);
 		    if (bestProvider != null && !bestProvider.equals(bestAvailableProvider)) {
@@ -105,34 +106,30 @@ private Criteria criteria;
 		    	        requestLocationUpdates();
 		    	    }
 		    	  };
-	private final LocationListener locationListener = new LocationListener(){
+		    	  
+		      protected BroadcastReceiver locPassiveReceiver = new BroadcastReceiver(){
 
-		@Override
-		public void onLocationChanged(Location location) {
-			Log.d("myLogs","onLocationChanged");
-			updateWithNewLocation(location);
-			
-		}
-
-		@Override
-		public void onProviderDisabled(String arg0) {
-			Log.d("myLogs", "onProviderDisabled:"+arg0);
-			
-		}
-
-		@Override
-		public void onProviderEnabled(String arg0) {
-			Log.d("myLogs", "onProviderEnabled:"+arg0);
-			
-		}
-
-		@Override
-		public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-			Log.d("myLogs", "onStatusChanged:"+arg0+" int "+arg1+" ");
-			
-		}
-		 
-	 };
+				@Override
+				public void onReceive(Context context, Intent intent) {
+					Location location = null;
+			        Log.d("myLogs","putBroadcast(passiveintent)");
+			        
+                    
+                    if (intent.getAction().equals(GeoConstants.PASSIVE_LOCATION_UPDATE)) {
+                    
+                    	
+              	     
+              	      location = (Location)intent.getParcelableExtra("lal");
+              	      updateWithNewLocation(location);
+              	      Log.d("myLogs","Passice location11:"+location.getLongitude());
+                    }
+                    
+				    
+					
+				}
+		    	  
+		      };
+	
 
 	@TargetApi(Build.VERSION_CODES.ECLAIR)
 	@Override

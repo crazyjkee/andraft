@@ -11,9 +11,7 @@ public class GeoConstants {
 	  
 
 	  
-	  public static int DEFAULT_RADIUS = 150;
-	  //расстояние от базы до юзера 
-	  public static int MAX_DISTANCE = DEFAULT_RADIUS/2;
+	  public static int MAX_DISTANCE = 10;
 	  //время до обновления координат
 	  public static long MAX_TIME = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 	  

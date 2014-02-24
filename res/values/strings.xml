@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="app_name">AsyncTaskCancel</string>
+<string name="app_name">DroidSignal2</string>
 <string name="start">Start</string>
 <string name="cancel">Cancel</string>
+<string name="save_data">Сохранить секрет?</string>
+<string name="saved">Сохранено</string>
+<string name="yes">Да</string>
+<string name="no">Нет</string>
+<string name="changeSecretText">Изменить секрет</string>
+
 </resources>

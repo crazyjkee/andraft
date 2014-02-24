@@ -81,7 +81,6 @@ public class Services extends Service {
 		IntentFilter intentFilter = new IntentFilter(
 				GeoConstants.ACTIVE_LOCATION_UPDATE_PROVIDER_DISABLED);
 		registerReceiver(locProviderDisabledReceiver, intentFilter);
-//asdsadsadsadsa
 		// Регистрируем ловлю passive location
 		IntentFilter intentFilter1 = new IntentFilter(
 				GeoConstants.PASSIVE_LOCATION_UPDATE);

@@ -2,7 +2,6 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
-       
     <TableRow
         android:id="@+id/tableRow3"
         android:layout_width="wrap_content"
@@ -12,15 +11,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center" >
-           
+
             <ProgressBar
                 android:id="@+id/progressBar1"
                 style="?android:attr/progressBarStyleLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
-
         </LinearLayout>
-
     </TableRow>
 
     <TableRow
@@ -28,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
 
-       <LinearLayout
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -41,14 +38,26 @@
                 android:onClick="readWebpage"
                 android:text="Submit" />
         </LinearLayout>
-
     </TableRow>
 
-    <TextView
-        android:id="@+id/textView1"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Large Text"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <Button
+            android:id="@+id/changeSecret"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/changeSecretText"
+            android:onClick="changeSecret" />
+    </LinearLayout>
 
 </TableLayout>

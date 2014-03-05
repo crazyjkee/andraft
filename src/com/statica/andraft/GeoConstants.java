@@ -7,10 +7,6 @@ public class GeoConstants {
 
 	  public static boolean DEVELOPER_MODE = true;
 	  
-
-	  
-
-	  
 	  public static int MAX_DISTANCE = 10;
 	  //время до обновления координат
 	  public static long MAX_TIME = AlarmManager.INTERVAL_FIFTEEN_MINUTES;

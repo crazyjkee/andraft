@@ -30,6 +30,7 @@ public class Services extends Service {
 	private PendingIntent locationListenerPassivePendingIntent;
 	private LocationUpdateRequester locationUpdateRequester;
 	private Criteria criteria;
+	private boolean first=false;
 
 	@Override
 	public void onCreate() {
@@ -51,17 +52,46 @@ public class Services extends Service {
 				.getLastLocationFinder(this);
 		locationUpdateRequester = PlatformSpecificImplementationFactory
 				.getLocationUpdateRequester(locationManager);
+		getLocation();
+		requestLocationUpdates();
+		
+	}
+
+	private void getLocation() {
 		Location location = lastLocationFinder.getLastBestLocation(
 				GeoConstants.MAX_DISTANCE, GeoConstants.MAX_TIME);
 		updateWithNewLocation(location);
+		if(first){
 		requestLocationUpdates();
+		first=false;
+		}
+
 	}
 
 	private void updateWithNewLocation(Location location) {
-		Log.d("myLogs", "Долгота:" + location.getLongitude() + " Широта:"
-				+ location.getLatitude());
+			try{
+				Log.d("myLogs", "Долгота:" + location.getLongitude() + " Широта:"
+					+ location.getLatitude());
+			}catch(NullPointerException e){
+				Thread t = new Thread(new Runnable(){
 
-	}
+					@Override
+					public void run() {
+						try {
+							Log.d("myLogs","Ждем 2 минуты");
+							Thread.sleep(120000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						first = true;
+						getLocation();
+						
+					}
+					
+				}
+				);t.start();
+	}}
 
 	protected void requestLocationUpdates() {
 		Log.d("myLogs", "requestLocationUpdates");
@@ -94,8 +124,8 @@ public class Services extends Service {
 				+ " bestAvailableProvider=" + bestAvailableProvider);
 		if (bestProvider != null && bestProvider.equals("gps")) {
 			Log.d("myLogs", "locationManager.requestLocationUpdates");
-			 locationManager.requestLocationUpdates(bestProvider, 0, 0,
-			 bestInactiveLocationProviderListener, getMainLooper());
+			locationManager.requestLocationUpdates(bestProvider, 0, 0,
+					bestInactiveLocationProviderListener, getMainLooper());
 		}
 	}
 
@@ -114,7 +144,7 @@ public class Services extends Service {
 
 		public void onProviderEnabled(String provider) {
 			Log.d("myLogs", "bestProvider enabled:" + provider);
-			requestLocationUpdates();
+			//requestLocationUpdates();
 		}
 	};
 	protected BroadcastReceiver locProviderDisabledReceiver = new BroadcastReceiver() {

@@ -8,12 +8,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnKeyListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -26,6 +25,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.basegeo.andraft.SharedPreferenceSaver;
+import com.getgeo.andraft.PlatformSpecificImplementationFactory;
 import com.services.andraft.Services;
 import com.statica.andraft.Utils;
 
@@ -39,17 +40,30 @@ public class MainActivity extends Activity {
 	Button b;
 	private LinearLayout view;
 	EditText secret;
-	String secret_get;
+	SharedPreferences sf;
+	SharedPreferenceSaver sharedPreferenceSaver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d("myLogs","onCreateActivity");
 		setContentView(R.layout.activity_main);
 		b = (Button) findViewById(R.id.button1);
 		tv = (TextView) findViewById(R.id.textView1);
 		pb = (ProgressBar) findViewById(R.id.progressBar1);
 		pb.setVisibility(View.GONE);
-		startService(new Intent(this, Services.class));
+		sf = getSharedPreferences(Utils.SHARED_PREFERENCE_FILE, MODE_PRIVATE);
+		sharedPreferenceSaver = PlatformSpecificImplementationFactory.getSharedPreferenceSaver(this);
+		String test = sf.getString(Utils.SAVED_SECRET, "lalka");
+		if(test.equals("lalka")){
+			Log.d("myLogs","sf = "+test);
+			showDialog(DIALOG_EXIT);}
+		else {
+			Log.d("myLogs",test);
+		}   
+			
+		
+
 
 	}
 
@@ -67,6 +81,7 @@ public class MainActivity extends Activity {
 			view = (LinearLayout) getLayoutInflater().inflate(R.layout.dialog,
 					null);
 			adb.setView(view);
+			adb.setCancelable(false);
 			secret = (EditText) view.findViewById(R.id.Secret);
 			adb.setOnKeyListener(new DialogInterface.OnKeyListener() {
 
@@ -75,9 +90,8 @@ public class MainActivity extends Activity {
 						KeyEvent event) {
 					if (event.getAction() == KeyEvent.ACTION_DOWN
 							&& (keyCode == KeyEvent.KEYCODE_ENTER)) {
-						secret_get = secret.getText().toString();
-					Log.d("myLogs", secret_get);
-						Log.d("myLogs", "enter");
+						
+						saveData();
 						dialog.cancel();
 						return true;
 					}
@@ -91,15 +105,22 @@ public class MainActivity extends Activity {
 	}
 
 	void saveData() {
-		Toast.makeText(this, R.string.saved + "text " + secret,
-				Toast.LENGTH_SHORT).show();
+		sf = getSharedPreferences(Utils.SHARED_PREFERENCE_FILE,MODE_PRIVATE);
+		Editor ed = sf.edit();
+        ed.putString(Utils.SAVED_SECRET,secret.getText().toString());
+        ed.putBoolean(Utils.BOOT, true);
+        sharedPreferenceSaver.savePreferences(ed, false);
+        Log.d("myLogs", secret.getText().toString());
+		startService(new Intent(this, Services.class));
+
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		// postRequest();
-	}
+		
+	// postRequest();
+		}
 
 	void postRequest() {
 		pb.setVisibility(View.VISIBLE);
@@ -109,6 +130,8 @@ public class MainActivity extends Activity {
 	}
 
 	public void readWebpage(View view) {
+		sf = getPreferences(MODE_PRIVATE);
+		Toast.makeText(this, sf.getString(Utils.SAVED_SECRET, "lalka"), Toast.LENGTH_LONG).show();
 		// postRequest();
 	}
 
@@ -118,6 +141,7 @@ public class MainActivity extends Activity {
 		inflater.inflate(R.menu.main, menu);
 		return true;
 	}
+
 
 	class AsyncHttpPost extends AsyncTask<String, Integer, String> {
 		private static final String LOG_TAG = "myLogs";
@@ -158,6 +182,7 @@ public class MainActivity extends Activity {
 				Log.d(LOG_TAG, "Запрос получен");
 			}
 		}
+
 
 		/*
 		 * @Override protected void onProgressUpdate(Integer... progress) {

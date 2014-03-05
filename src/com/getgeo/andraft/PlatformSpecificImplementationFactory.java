@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.basegeo.andraft.ILastLocationFinder;
 import com.basegeo.andraft.LocationUpdateRequester;
+import com.basegeo.andraft.SharedPreferenceSaver;
 import com.statica.andraft.GeoConstants;
 
 
@@ -52,11 +53,11 @@ public class PlatformSpecificImplementationFactory {
 	   * @param context Context
 	   * @return SharedPreferenceSaver
 	   */
-	  /*public static SharedPreferenceSaver getSharedPreferenceSaver(Context context) {
+	  public static SharedPreferenceSaver getSharedPreferenceSaver(Context context) {
 	    return  GeoConstants.SUPPORTS_GINGERBREAD ? 
 	       new GingerbreadSharedPreferenceSaver(context) : 
-	       PlacesConstants.SUPPORTS_FROYO ? 
+	       GeoConstants.SUPPORTS_FROYO ? 
 	           new FroyoSharedPreferenceSaver(context) :
 	           new LegacySharedPreferenceSaver(context);
-	  }*/
+	  }
 	}

@@ -6,11 +6,10 @@ import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
 
-
 public class FroyoSharedPreferenceSaver extends LegacySharedPreferenceSaver {
 
 	  protected BackupManager backupManager;
-		
+
 	  @TargetApi(Build.VERSION_CODES.FROYO)
 	public FroyoSharedPreferenceSaver(Context context) {
 	    super(context);

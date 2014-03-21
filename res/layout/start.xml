@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_start"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@android:color/transparent" >
+
+    <LinearLayout
+        android:id="@+id/layout_logo"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#88333333"
+        android:gravity="top"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/logo"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:gravity="center"
+            android:text="WEBCOME"
+            android:textColor="#FFFFFFFF"
+            android:textSize="24dip" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_setup"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#88333333"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <ToggleButton
+            android:id="@+id/but_private"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button"
+            android:gravity="center"
+            android:onClick="onToggleButtonClick"
+            android:textColor="@android:color/white"
+            android:textOff="PRIVATE"
+            android:textOn="SHARED"
+            android:textSize="24dip" />
+
+        <Button
+            android:id="@+id/but_start"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dip"
+            android:background="@drawable/button"
+            android:gravity="center"
+            android:text="START"
+            android:textColor="#FFFFFFFF"
+            android:textSize="24dip" />
+    </LinearLayout>
+
+</FrameLayout>

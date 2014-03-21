@@ -2,9 +2,12 @@ package com.example.andraft;
 
 import static com.statica.andraft.Utils.LOG_TAG;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
@@ -14,102 +17,97 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
-import android.os.Environment;
 import android.util.Log;
 
-import com.statica.andraft.Utils;
-
-public class MyRequest {	
+public class MyRequest {
 	private String url;
-	String status="";
+	String status;
 	String origResponse;
-
-	String file;
-	List<NameValuePair> nameValuePairs =new ArrayList<NameValuePair>();
+	SimpleDateFormat simpleDateFormat;
+	String strTime;
+	byte[] file;
 	StringBuilder s;
 	String image_str;
-	 HttpResponse response;
-	
+	HttpResponse response;
+	HttpEntity rp;
 
-	public MyRequest(String url,String file) {
+	public MyRequest(String url) {
 		super();
 		this.url = url;
-		this.file=file;
-			origResponse=executeMultipartPost();
-		
-		
+
 	}
-	public List<NameValuePair> getNameValuePairs() {
-		return nameValuePairs;
-	}
-	public void setNameValuePairs(List<NameValuePair> nameValuePairs) {
-		
-		this.nameValuePairs = nameValuePairs;
-	}
+
 	public String getUrl() {
 		return url;
 	}
+
 	public String getStatus() {
 		return status;
 	}
-	public String getFile() {
+
+	public byte[] getFile() {
 		return file;
 	}
+
+	public void setFile(byte[] file) {
+		this.file = file;
+	}
+
 	public String getOrigResponse() {
 		return origResponse;
 	}
-	
-	public String executeMultipartPost() {
 
-         MultipartEntity multipartEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE); 
-         try {
-			multipartEntity.addPart("id", new StringBody(Utils.id));
+	public void disconnect() {
+		if (rp != null) {
+
+			try {
+				response.getEntity().consumeContent();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			Log.d(LOG_TAG, "Соединение " + rp.isStreaming() + "");
+			Log.d(LOG_TAG, "!=null");
+			Log.d(LOG_TAG, origResponse);
+		} else {
+			Log.d(LOG_TAG, "непрокатило");
+		}
+	}
+
+	public void executeMultipartPost(byte[] file) {
+		this.file = file;
+		simpleDateFormat = new SimpleDateFormat("dd hh:mm:ss");
+		strTime = simpleDateFormat.format(new Date());
+		MultipartEntity multipartEntity = new MultipartEntity(
+				HttpMultipartMode.BROWSER_COMPATIBLE);
+		multipartEntity.addPart("file", new InputStreamBody(
+				new ByteArrayInputStream(file), "lalka"));
+		
+		try {
+			multipartEntity.addPart("time",new StringBody(strTime));
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		// multipartEntity.addPart("Nick", new StringBody("Nick"));
-         multipartEntity.addPart("file", new FileBody(new File(Utils.file)));
-         
-         
-         try{
-             HttpClient httpclient = new DefaultHttpClient();
-             HttpPost httppost = new HttpPost(url);
-             httppost.setEntity(multipartEntity);
-             long k=System.currentTimeMillis();
-             long m;
-             //for(int i=0;i<1000;i++){
-             
-            response = httpclient.execute(httppost);
-             HttpEntity rp = response.getEntity();
-             Log.d(LOG_TAG,"Соединение "+response.getEntity().isStreaming());
- 			status = response.getStatusLine().getStatusCode()+"";
- 			if (rp != null) {
- 				origResponse = EntityUtils.toString(rp);
- 				response.getEntity().consumeContent();
- 				Log.d(LOG_TAG,"Соединение "+response.getEntity().isStreaming()+"");
- 				Log.d(LOG_TAG, "!=null");
- 				Log.d(LOG_TAG,origResponse);
- 			} else
- 				Log.d(LOG_TAG, "непрокатило");
- 			m=System.currentTimeMillis()-k;
- 		    k=System.currentTimeMillis();
- 		    Log.d(LOG_TAG,"Время запроса "+ m);//}
-         }catch(Exception e){
-               Log.d(LOG_TAG,"Error in http connection "+e.toString());
-               return "null";    
-         }
-         
-		return origResponse;
-     }
+		Log.d("myLogs", this.url);
 
-        
-     }
+		try {
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost = new HttpPost(this.url);
+			httppost.setEntity(multipartEntity);
+			response = httpclient.execute(httppost);
+			rp = response.getEntity();
+			Log.d(LOG_TAG, "Соединение " + rp.isStreaming());
+			status = response.getStatusLine().getStatusCode() + "";
+			origResponse = EntityUtils.toString(rp);
+		} catch (Exception e) {
+			Log.d(LOG_TAG, "Error in http connection " + e.toString());
+			origResponse = "null";
+		}
+	}
+
+}

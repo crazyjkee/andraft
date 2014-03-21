@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout
+        android:id="@+id/link"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@android:color/transparent"
+        android:gravity="top"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/your_link"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:gravity="center"
+            android:text="your link:"
+            android:textColor="@android:color/white"
+            android:textSize="24dip" />
+
+        <TextView
+            android:id="@+id/your_pass"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:gravity="center"
+            android:text="your pass:"
+            android:textColor="@android:color/white"
+            android:textSize="24dip" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_link"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@android:color/transparent"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/but_stop"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:gravity="center"
+            android:text="STOP"
+            android:textColor="#FFFFFFFF"
+            android:textSize="24dip" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_logs"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#88333333"
+        android:gravity="center|bottom"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/watchers"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:gravity="center"
+            android:text="looking:"
+            android:textColor="#FFFFFFFF"
+            android:textSize="24dip" />
+
+        <TextView
+            android:id="@+id/watchered"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:gravity="center"
+            android:text="looked:"
+            android:textColor="#FFFFFFFF"
+            android:textSize="24dip" />
+    </LinearLayout>
+
+</FrameLayout>

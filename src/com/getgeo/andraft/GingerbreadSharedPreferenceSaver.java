@@ -3,8 +3,7 @@ package com.getgeo.andraft;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-
-public class GingerbreadSharedPreferenceSaver extends FroyoSharedPreferenceSaver {
+public class GingerbreadSharedPreferenceSaver  extends FroyoSharedPreferenceSaver {
     
 	  public GingerbreadSharedPreferenceSaver(Context context) {
 	    super(context);

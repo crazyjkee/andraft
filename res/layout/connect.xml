@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        android:id="@+id/connect"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#88333333"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <ProgressBar
+            android:id="@+id/progressBar1"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+         <TextView
+            android:id="@+id/wait"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:gravity="center"
+            android:text="connect to Server:"
+            android:textColor="#FFFFFFFF"
+            android:textSize="24dip" />
+    </LinearLayout>
+
+</FrameLayout>

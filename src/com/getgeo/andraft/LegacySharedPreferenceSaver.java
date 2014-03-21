@@ -3,7 +3,7 @@ package com.getgeo.andraft;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
 
-import com.basegeo.andraft.SharedPreferenceSaver;
+import com.base.andraft.SharedPreferenceSaver;
 
 
 public class LegacySharedPreferenceSaver extends SharedPreferenceSaver {

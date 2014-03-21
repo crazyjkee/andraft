@@ -1,4 +1,4 @@
-package com.basegeo.andraft;
+package com.base.andraft;
 
 import android.content.Context;
 import android.content.SharedPreferences;

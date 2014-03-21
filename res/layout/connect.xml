@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_connect"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:background="@android:color/transparent" >
 
     <LinearLayout
         android:id="@+id/connect"
@@ -12,11 +14,12 @@
         android:orientation="vertical" >
 
         <ProgressBar
-            android:id="@+id/progressBar1"
+            android:id="@+id/pb"
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-         <TextView
+
+        <TextView
             android:id="@+id/wait"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

@@ -8,4 +8,10 @@ public class Utils {
  public static final String SAVED_SECRET="saved_secret";
  public static String SHARED_PREFERENCE_FILE = "SHARED_PREFERENCE_FILE";
  public static String BOOT = "BOOT";
+ public static String YOUR_LINK = "LINK";
+ public static String YOUR_PASS = "PASS";
+ public static String LOOK_NOW = "NOW";
+ public static String LOOKED="LOOKED";
+ public static String SEND="SEND";
+ 
 }

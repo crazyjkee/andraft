@@ -1,18 +1,24 @@
 package com.example.andraft;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera.PreviewCallback;
-import android.os.AsyncTask;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -24,7 +30,10 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -32,258 +41,267 @@ import com.base.andraft.SharedPreferenceSaver;
 import com.camera.andraft.CameraView;
 import com.camera.andraft.OverlayView;
 import com.getgeo.andraft.PlatformSpecificImplementationFactory;
+import com.services.andraft.Services;
 import com.statica.andraft.Utils;
 
 public class MainActivity extends Activity implements View.OnTouchListener,
-CameraView.CameraReadyCallback, OverlayView.UpdateDoneCallback {
-final int DIALOG_EXIT = 1;
-AsyncHttpPost mt;
-/*	ProgressBar pb;
-TextView tv;
-String image_str;
-Button b;
-private LinearLayout view;
-EditText secret;*/
-SharedPreferences sf;
-SharedPreferenceSaver sharedPreferenceSaver;
-private CameraView cameraView_;
-private OverlayView overlayView_;
-ByteArrayOutputStream bf;
+		CameraView.CameraReadyCallback, OverlayView.UpdateDoneCallback {
+	ConnectivityManager cm;
+	NetworkInfo nInfo;
+	final int DIALOG_EXIT = 1;
+	ProgressBar pb;
+	TextView wait,your_link,your_pass,watchers,watchered,sends;
+	String image_str;
+	Button privat,but_stop;
+	SharedPreferences sf;
+	SharedPreferenceSaver sharedPreferenceSaver;
+	Editor ed;
+	private CameraView cameraView_;
+	private OverlayView overlayView_;
+	public static ByteArrayOutputStream bf;
+	FrameLayout frLayout;
+	View view;
+	ArrayList<View> arView;
+	String status;
 
-@Override
-protected void onCreate(Bundle savedInstanceState) {
-super.onCreate(savedInstanceState);
-requestWindowFeature(Window.FEATURE_NO_TITLE);
-Window win = getWindow();
-win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-Log.d("myLogs", "onCreateActivity");
-setContentView(R.layout.activity_main);
-LayoutInflater ltInflater = getLayoutInflater();
-View view = ltInflater.inflate(R.layout.start, null,false);
-FrameLayout frLayout = (FrameLayout) findViewById(R.id.FrameLayout1);
-frLayout.addView(view);
-sf = getSharedPreferences(Utils.SHARED_PREFERENCE_FILE, MODE_PRIVATE);
-sharedPreferenceSaver = PlatformSpecificImplementationFactory
-		.getSharedPreferenceSaver(this);
-String test = sf.getString(Utils.SAVED_SECRET, "lalka");
-if (test.equals("lalka")) {
-	Log.d("myLogs", "sf = " + test);
-	showDialog(DIALOG_EXIT);
-} else {
-	Log.d("myLogs", test);
-}
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.d("myLogs", "onCreate()");
+		cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		nInfo = cm.getActiveNetworkInfo();
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		Window win = getWindow();
+		win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		Log.d("myLogs", "onCreateActivity");
+		setContentView(R.layout.activity_main);
+		arView = getViews();
+		wait = (TextView) arView.get(1).findViewById(R.id.wait);
+		pb = (ProgressBar) arView.get(1).findViewById(R.id.pb);
+		your_link = (TextView) arView.get(2).findViewById(R.id.your_link);
+		your_pass = (TextView) arView.get(2).findViewById(R.id.your_pass);
+		watchers = (TextView) arView.get(2).findViewById(R.id.watchers);
+		watchered = (TextView) arView.get(2).findViewById(R.id.watchered);
+		sends = (TextView) arView.get(2).findViewById(R.id.sends);
+		frLayout = (FrameLayout) findViewById(R.id.FrameLayout1);
+		frLayout.addView(arView.get(0));
+		sf = getSharedPreferences(Utils.SHARED_PREFERENCE_FILE, MODE_PRIVATE);
+		sharedPreferenceSaver = PlatformSpecificImplementationFactory
+				.getSharedPreferenceSaver(this);
+		ed = sf.edit();
+		String test = sf.getString(Utils.SAVED_SECRET, "lalka");
+		if (test.equals("lalka")) {
+			Log.d("myLogs", "sf = " + test);
+			showDialog(DIALOG_EXIT);
+		} else {
+			Log.d("myLogs", test);
+		}
+		registerReceiver(receiver, new IntentFilter(Services.NOTIFICATION));
 
-initCamera();
-}
-
-public void onToggleButtonClick(View button){
-Toast.makeText(
-        getApplicationContext(), 
-        Boolean.toString(((ToggleButton) button).isChecked()),
-        Toast.LENGTH_SHORT).show();
-}
-
-
-@Override
-public void onPause() {
-super.onPause();
-
-cameraView_.StopPreview();
-cameraView_.Release();
-
-// System.exit(0);
-finish();
-}
-
-private void initCamera() {
-SurfaceView cameraSurface = (SurfaceView) findViewById(R.id.surface_camera);
-cameraView_ = new CameraView(cameraSurface);
-cameraView_.setCameraReadyCallback(this);
-overlayView_ = (OverlayView) findViewById(R.id.surface_overlay);
-overlayView_.setOnTouchListener(this);
-overlayView_.setUpdateDoneCallback(this);
-}
-
-private PreviewCallback previewCb_ = new PreviewCallback() {
-public void onPreviewFrame(byte[] frame, android.hardware.Camera c) {
-
-	int picWidth = cameraView_.Width();
-	int picHeight = cameraView_.Height();
-	bf = new ByteArrayOutputStream();
-	boolean ret;
-		try{
-		YuvImage image = new YuvImage(frame, ImageFormat.NV21, picWidth,
-				picHeight, null);
-		ret = image.compressToJpeg(new Rect(0, 0, picWidth, picHeight),
-				30, bf);
-	} catch (Exception ex) {
-		ret = false;
+		// initCamera();
 	}
-}
-};
 
-public void changeSecret(View v) {
-showDialog(DIALOG_EXIT);
-}
+	public void onToggleButtonClick(View button) {
+		Toast.makeText(getApplicationContext(),
+				Boolean.toString(((ToggleButton) button).isChecked()),
+				Toast.LENGTH_SHORT).show();
+	}
 
-@Override
-@Deprecated
-protected Dialog onCreateDialog(int id) {
-if (id == DIALOG_EXIT) {
-	AlertDialog.Builder adb = new AlertDialog.Builder(this);
-	adb.setTitle(R.string.changeSecretText);
-	adb.setMessage(R.string.save_data);
-	//view = (LinearLayout) getLayoutInflater().inflate(R.layout.dialog,
-		//	null);
-	//adb.setView(view);
-	adb.setCancelable(false);
-	//secret = (EditText) view.findViewById(R.id.Secret);
-	adb.setOnKeyListener(new DialogInterface.OnKeyListener() {
+	private ArrayList<View> getViews() {
+		ArrayList<View> views = new ArrayList<View>();
+		LayoutInflater ltInflater = getLayoutInflater();
+		views.add(ltInflater.inflate(R.layout.start, null));
+		views.add(ltInflater.inflate(R.layout.connect, null));
+		views.add(ltInflater.inflate(R.layout.link, null));
+		return views;
 
-		@Override
-		public boolean onKey(DialogInterface dialog, int keyCode,
-				KeyEvent event) {
-			if (event.getAction() == KeyEvent.ACTION_DOWN
-					&& (keyCode == KeyEvent.KEYCODE_ENTER)) {
+	}
 
-				saveData();
-				dialog.cancel();
-				return true;
+	@Override
+	public void onPause() {
+		super.onPause();
+		Log.d("myLogs", "onPause");
+		cameraView_.StopPreview();
+		cameraView_.Release();
+
+		// System.exit(0);
+	}
+
+	private void initCamera() {
+		SurfaceView cameraSurface = (SurfaceView) findViewById(R.id.surface_camera);
+		cameraView_ = CameraView.getInstance(cameraSurface);
+		cameraView_.setCameraReadyCallback(this);
+		overlayView_ = (OverlayView) findViewById(R.id.surface_overlay);
+		overlayView_.setOnTouchListener(this);
+		overlayView_.setUpdateDoneCallback(this);
+	}
+
+	private PreviewCallback previewCb_ = new PreviewCallback() {
+		public void onPreviewFrame(byte[] frame, android.hardware.Camera c) {
+
+			int picWidth = cameraView_.Width();
+			int picHeight = cameraView_.Height();
+			bf = new ByteArrayOutputStream();
+			boolean ret;
+			try {
+				YuvImage image = new YuvImage(frame, ImageFormat.NV21,
+						picWidth, picHeight, null);
+				ret = image.compressToJpeg(new Rect(0, 0, picWidth, picHeight),
+						30, bf);
+			} catch (Exception ex) {
+				ret = false;
 			}
-			return false;
 		}
+	};
 
-	});
-	return adb.create();
-}
-return super.onCreateDialog(id);
-}
+	public void changeSecret(View v) {
+		showDialog(DIALOG_EXIT);
+	}
 
-void saveData() {
-sf = getSharedPreferences(Utils.SHARED_PREFERENCE_FILE, MODE_PRIVATE);
-Editor ed = sf.edit();
-//ed.putString(Utils.SAVED_SECRET, secret.getText().toString());
-ed.putBoolean(Utils.BOOT, true);
-sharedPreferenceSaver.savePreferences(ed, false);
-//Log.d("myLogs", secret.getText().toString());
-// startService(new Intent(this, Services.class));
+	@Override
+	@Deprecated
+	protected Dialog onCreateDialog(int id) {
+		if (id == DIALOG_EXIT) {
+			AlertDialog.Builder adb = new AlertDialog.Builder(this);
+			adb.setTitle(R.string.changeSecretText);
+			adb.setMessage(R.string.save_data);
+			// view = (LinearLayout)
+			// getLayoutInflater().inflate(R.layout.dialog,
+			// null);
+			// adb.setView(view);
+			adb.setCancelable(false);
+			// secret = (EditText) view.findViewById(R.id.Secret);
+			adb.setOnKeyListener(new DialogInterface.OnKeyListener() {
+				@Override
+				public boolean onKey(DialogInterface dialog, int keyCode,
+						KeyEvent event) {
+					if (event.getAction() == KeyEvent.ACTION_DOWN
+							&& (keyCode == KeyEvent.KEYCODE_ENTER)) {
 
-}
+						saveData();
+						dialog.cancel();
+						return true;
+					}
+					return false;
+				}
 
-@Override
-protected void onResume() {
-super.onResume();
-
-// postRequest();
-}
-
-public void connect(View view) {
-//	pb.setVisibility(View.VISIBLE);
-//tv.setText("Отправка запроса");
-mt = new AsyncHttpPost();
-mt.execute();
-}
-
-public void readPassword(View view) {
-sf = getPreferences(MODE_PRIVATE);
-Toast.makeText(this, sf.getString(Utils.SAVED_SECRET, "lalka"),
-		Toast.LENGTH_LONG).show();
-// postRequest();
-}
-
-@Override
-public boolean onCreateOptionsMenu(Menu menu) {
-MenuInflater inflater = getMenuInflater();
-inflater.inflate(R.menu.main, menu);
-return true;
-}
-
-class AsyncHttpPost extends AsyncTask<String, Integer, String> {
-private static final String LOG_TAG = "myLogs";
-String status = "1";
-MyRequest myRequest;
-
-@Override
-protected void onPreExecute() {
-
-	super.onPreExecute();
-}
-
-public String getBucketId(String path) {
-	return String.valueOf(path.toLowerCase().hashCode());
-}
-@Override
-protected String doInBackground(String... params) {
-	// отправляем запрос с параметрами на адрес
-	// Log.d(LOG_TAG,params[0]);
-	myRequest = new MyRequest(
-			"http://wildfly8-makli.rhcloud.com/upload/22");
-	do {
-		// Log.d("myLogs","size:"+bf.size());
-		// byte[] b = getBitmap(bf.toByteArray());
-		myRequest.executeMultipartPost(bf.toByteArray());
-		status = myRequest.getStatus();
-		Log.d(LOG_TAG, status + ""+"\n origResponse:"+myRequest.getOrigResponse());
-		if (myRequest.getOrigResponse().equals("null")) {
-			myRequest.disconnect();
-			break;
+			});
+			return adb.create();
 		}
-	} while (myRequest.getStatus().equals("200"));
+		return super.onCreateDialog(id);
+	}
 
-	myRequest.disconnect();
+	void saveData() {
+		
+		// ed.putString(Utils.SAVED_SECRET, secret.getText().toString());
+		ed.putBoolean(Utils.BOOT, true);
+		sharedPreferenceSaver.savePreferences(ed, false);
+		// Log.d("myLogs", secret.getText().toString());
+		// startService(new Intent(this, Services.class));
+	}
 
-	// }
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Log.d("myLogs", "onResume()");
 
-	// myRequest = new MyRequest(Utils.url, Utils.file);
+		initCamera();
 
-	status = myRequest.getStatus();
-	Log.d(LOG_TAG, status + "");
-	// TODO Auto-generated method stub
-	String s = myRequest.getOrigResponse();
+		// postRequest();
+	}
 
-	return s;
-}
+	public void startOn(View view) {
+		Log.d("myLogs", "StartOn");
+		if (nInfo != null && nInfo.isConnected()) {
+			frLayout.removeView(arView.get(0));
+			frLayout.addView(arView.get(1));
+			pb.setVisibility(View.VISIBLE);
+			startService(new Intent(this, Services.class));
 
-protected void onPostExecute(String result) {
-/*	if (result.equals("null")) {
-		tv.setText("Ошибка подключения");
-		pb.setVisibility(View.GONE);
-	} else {
-		tv.setText(status);
+		} else
+			Toast.makeText(this, "Can't connect to Network", Toast.LENGTH_SHORT)
+					.show();
+	}
+	
+	public void stop(View view){
+		stopService(new Intent(this, Services.class));
+	}
 
-		pb.setVisibility(View.GONE);
-		Log.d(LOG_TAG, result);
-		Log.d(LOG_TAG, "Запрос получен");
-	}*/
-}
+	@Override
+	public void onBackPressed() {
+		
+		super.onBackPressed();
+	}
+	
 
-/*
- * @Override protected void onProgressUpdate(Integer... progress) {
- * pb.setProgress(progress[0]); }
- */
+	@Override
+	protected void onDestroy() {
+	
+        Log.d("myLogs","onDestroy");
+		super.onDestroy();
+	}
 
-}
+	public void readPassword(View view) {
+		Toast.makeText(this, sf.getString(Utils.SAVED_SECRET, "lalka"),
+				Toast.LENGTH_LONG).show();
+		// postRequest();
+	}
+	 private BroadcastReceiver receiver = new BroadcastReceiver() {
+		    @Override
+		    public void onReceive(Context context, Intent intent) {
+		    	
+		      Bundle bundle = intent.getExtras();
+		      if (bundle != null) {
+		        int resultCode = bundle.getInt(Services.RESULT);
+		        if (resultCode == 1) {
+		        	pb.setVisibility(View.GONE);
+		          wait.setText(wait.getText()+" OK");//your_link,your_pass,watchers,watchered,sends;
+		          your_link.setText(your_link.getText()+" "+sf.getString(Utils.YOUR_LINK, "lalla"));
+		          your_pass.setText(your_pass.getText()+" "+sf.getString(Utils.YOUR_PASS, "123"));
+		          watchers.setText(watchers.getText()+" "+sf.getInt(Utils.LOOK_NOW, 22));
+		          watchered.setText(watchered.getText()+" "+sf.getInt(Utils.LOOKED, 123123));
+		          sends.setText(sends.getText()+" "+sf.getLong(Utils.SEND, 0));
+		          frLayout.removeView(arView.get(1));
+		          frLayout.addView(arView.get(2));
+		          
+		          
+		        }
+		      }
+		      context.unregisterReceiver(receiver);
+		    }
+		    
+		  };
 
-@Override
-public void onUpdateDone() {
-// TODO Auto-generated method stub
 
-}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
 
-@Override
-public void onCameraReady() {
+	
 
-int wid = cameraView_.Width();
-int hei = cameraView_.Height();
-cameraView_.StopPreview();
-cameraView_.setupCamera(wid, hei, previewCb_);
-cameraView_.StartPreview();
+	@Override
+	public void onUpdateDone() {
+		// TODO Auto-generated method stub
 
-}
+	}
 
-@Override
-public boolean onTouch(View v, MotionEvent event) {
-return false;
-}
+	@Override
+	public void onCameraReady() {
+
+		int wid = cameraView_.Width();
+		int hei = cameraView_.Height();
+		cameraView_.StopPreview();
+		cameraView_.setupCamera(wid, hei, previewCb_);
+		cameraView_.StartPreview();
+
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+		return false;
+	}
 
 }

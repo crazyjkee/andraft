@@ -7,7 +7,7 @@
         android:id="@+id/link"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@android:color/transparent"
+        android:background="#88333333"
         android:gravity="top"
         android:orientation="vertical" >
 
@@ -15,11 +15,12 @@
             android:id="@+id/your_link"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="50dip"
             android:layout_marginLeft="5dip"
             android:layout_marginRight="5dip"
-            android:gravity="center"
-            android:text="your link:"
-            android:textColor="@android:color/white"
+            android:gravity="center|left"
+            android:text="YOUR LINK:"
+            android:textColor="#FFFFFFFF"
             android:textSize="24dip" />
 
         <TextView
@@ -28,9 +29,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dip"
             android:layout_marginRight="5dip"
-            android:gravity="center"
-            android:text="your pass:"
-            android:textColor="@android:color/white"
+            android:gravity="left"
+            android:text="YOUR_PASS:"
+            android:textColor="#FFFFFFFF"
             android:textSize="24dip" />
     </LinearLayout>
 
@@ -44,14 +45,15 @@
 
         <Button
             android:id="@+id/but_stop"
-            android:layout_width="fill_parent"
+             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dip"
-            android:layout_marginRight="5dip"
+            android:layout_marginTop="20dip"
+            android:background="@drawable/button"
             android:gravity="center"
             android:text="STOP"
             android:textColor="#FFFFFFFF"
-            android:textSize="24dip" />
+            android:textSize="24dip" 
+            android:onClick="stop" />
     </LinearLayout>
 
     <LinearLayout
@@ -83,6 +85,18 @@
             android:text="looked:"
             android:textColor="#FFFFFFFF"
             android:textSize="24dip" />
+
+        <TextView
+            android:id="@+id/sends"
+             android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:gravity="left"
+            android:text="sends:"
+            android:textColor="#FFFFFFFF"
+            android:textSize="24dip" />
+
     </LinearLayout>
 
 </FrameLayout>

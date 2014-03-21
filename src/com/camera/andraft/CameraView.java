@@ -8,11 +8,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class CameraView implements SurfaceHolder.Callback{
-
+	 private static volatile CameraView instance;
     public static interface CameraReadyCallback { 
         public void onCameraReady(); 
     }  
 
+    
     private Camera camera_ = null;
     private SurfaceHolder surfaceHolder_ = null;
     private SurfaceView	  surfaceView_;
@@ -21,12 +22,24 @@ public class CameraView implements SurfaceHolder.Callback{
     private List<Camera.Size> supportedSizes; 
     private Camera.Size procSize_;
 
-    public CameraView(SurfaceView sv){
+    private CameraView(SurfaceView sv){
         surfaceView_ = sv;
 
         surfaceHolder_ = surfaceView_.getHolder();
         surfaceHolder_.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder_.addCallback(this); 
+    }
+    public static CameraView getInstance(SurfaceView sv) {
+        CameraView localInstance = instance;
+        if (localInstance == null) {
+            synchronized (CameraView.class) {
+                localInstance = instance;
+                if (localInstance == null) {
+                    instance = localInstance = new CameraView(sv);
+                }
+            }
+        }
+        return localInstance;
     }
 
     public List<Camera.Size> getSupportedPreviewSize() {

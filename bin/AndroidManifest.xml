@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.provider.Settings.Secure.ANDROID_ID" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -23,20 +24,19 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.example.andraft.MainActivity"
+            android:screenOrientation="landscape"
             android:label="@string/app_name" >
             <intent-filter>
+                
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <service android:name="com.services.andraft.Services" >
-        </service>
-
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+        </intent-filter>
     </application>
 
 </manifest>

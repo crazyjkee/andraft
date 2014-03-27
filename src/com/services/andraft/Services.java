@@ -1,11 +1,18 @@
 package com.services.andraft;
 
 import static com.example.andraft.MainActivity.bf;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings.Secure;
 import android.util.Log;
 
 import com.base.andraft.SharedPreferenceSaver;
@@ -14,7 +21,8 @@ import com.example.andraft.MyRequest;
 import com.getgeo.andraft.PlatformSpecificImplementationFactory;
 import com.statica.andraft.Utils;
 
-public class Services extends Service implements CameraView.CameraReadyCallback {
+public class Services extends Service {
+
 	public static final String NOTIFICATION = "notif";
 	public static final String RESULT = "result";
 	private final String LOG_TAG = "myLogs";
@@ -22,53 +30,60 @@ public class Services extends Service implements CameraView.CameraReadyCallback 
 	private String status;
 	private SharedPreferences sf;
 	private SharedPreferenceSaver sharedPreferenceSaver;
-	private Editor ed; 
-
-	
-
+	private Editor ed;
+	private SimpleDateFormat simpleDateFormat;
+	private String strTime;
+	private String device_id;
+	public static boolean go = false;
 	@Override
 	public void onCreate() {
+		
 		Log.d("myLogs", "onPreExecute");
+		simpleDateFormat = new SimpleDateFormat("dd MMMM hh:mm:ss");
 		sf = getSharedPreferences(Utils.SHARED_PREFERENCE_FILE, MODE_PRIVATE);
-		ed= sf.edit();
-		sharedPreferenceSaver = PlatformSpecificImplementationFactory.getSharedPreferenceSaver(this);
-		doInBackground();
+		ed = sf.edit();
+		sharedPreferenceSaver = PlatformSpecificImplementationFactory
+				.getSharedPreferenceSaver(this);
+		device_id = Secure.getString(this.getContentResolver(),
+				Secure.ANDROID_ID);
+		Log.d("myLogs", "device_id:" + device_id);
+		
+
 		super.onCreate();
 	}
-	
-	
-	
-	
+
 	private void doInBackground() {
 		// отправляем запрос с параметрами на адрес
 		// Log.d(LOG_TAG,params[0]);
-		myRequest = new MyRequest(
-				"http://wildfly8-makli.rhcloud.com/upload/22");
+		myRequest = new MyRequest(Utils.REGISTER_URL);
+	           
+		 
 		do {
 			// Log.d("myLogs","size:"+bf.size());
-			myRequest.executeMultipartPost(bf.toByteArray());
+
+			strTime = simpleDateFormat.format(new Date());
+			myRequest.executeMultipartPost(bf.toByteArray(), device_id,
+					strTime, LOG_TAG);
 			status = myRequest.getStatus();
-			Log.d(LOG_TAG,
-					status + "" + "\n origResponse:"
-							+ myRequest.getOrigResponse());
-			
+			// Log.d(LOG_TAG,
+			// status + "" + "\n origResponse:" + myRequest.getOrigResponse());
+
 			if (myRequest.getOrigResponse().equals("null")) {
 				myRequest.disconnect();
-				break;
+				// break;
 			}
-			if(status.equals("404")){
-				ed.putString(Utils.YOUR_LINK, "LINK");
-				ed.putString(Utils.YOUR_PASS, "PASS");
-				ed.putInt(Utils.LOOK_NOW, 1);
-				ed.putInt(Utils.LOOKED, 2);
-				ed.putLong(Utils.SEND, 123);
-				sharedPreferenceSaver.savePreferences(ed, false);
-				publishResults(1);	
-			}
+
+			ed.putString(Utils.YOUR_LINK, Utils.REGISTER_URL);
+			ed.putString(Utils.YOUR_PASS, myRequest.getPass());
+			ed.putInt(Utils.LOOK_NOW, 11);
+			ed.putInt(Utils.LOOKED, 2);
+			ed.putLong(Utils.SEND, 123);
+			sharedPreferenceSaver.savePreferences(ed, false);
+
+    
 		} while (myRequest.getStatus().equals("200"));
 
-		myRequest.disconnect();
-
+		
 		// }
 
 		// myRequest = new MyRequest(Utils.url, Utils.file);
@@ -78,28 +93,21 @@ public class Services extends Service implements CameraView.CameraReadyCallback 
 		// TODO Auto-generated method stub
 	}
 
-
-
-
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	private void publishResults(int result){
-		Intent intent = new Intent(NOTIFICATION);
-		intent.putExtra(RESULT, result);
-		sendBroadcast(intent);
-	}
-
-
-
-
 	@Override
-	public void onCameraReady() {
-		// TODO Auto-generated method stub
-		
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		Log.d("myLogs","onStartCommand");
+		doInBackground();
+		return super.onStartCommand(intent, flags, startId);
 	}
+
+	
+
+	
 
 }

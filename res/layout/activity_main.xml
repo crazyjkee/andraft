@@ -8,11 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
-    <com.camera.andraft.OverlayView
-        android:id="@+id/surface_overlay"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="#00000000" />
+
     <LinearLayout
         android:id="@+id/layout_logo"
         android:layout_width="fill_parent"

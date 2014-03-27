@@ -4,11 +4,11 @@ import java.util.List;
 
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class CameraView implements SurfaceHolder.Callback{
-	 private static volatile CameraView instance;
     public static interface CameraReadyCallback { 
         public void onCameraReady(); 
     }  
@@ -22,25 +22,15 @@ public class CameraView implements SurfaceHolder.Callback{
     private List<Camera.Size> supportedSizes; 
     private Camera.Size procSize_;
 
-    private CameraView(SurfaceView sv){
+    public CameraView(SurfaceView sv){
         surfaceView_ = sv;
 
         surfaceHolder_ = surfaceView_.getHolder();
         surfaceHolder_.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         surfaceHolder_.addCallback(this); 
     }
-    public static CameraView getInstance(SurfaceView sv) {
-        CameraView localInstance = instance;
-        if (localInstance == null) {
-            synchronized (CameraView.class) {
-                localInstance = instance;
-                if (localInstance == null) {
-                    instance = localInstance = new CameraView(sv);
-                }
-            }
-        }
-        return localInstance;
-    }
+    
+    
 
     public List<Camera.Size> getSupportedPreviewSize() {
         return supportedSizes;
@@ -77,6 +67,7 @@ public class CameraView implements SurfaceHolder.Callback{
     public void Release() {
         if ( camera_ != null) {
             camera_.stopPreview();
+            camera_.setPreviewCallback(null);
             camera_.release();
             camera_ = null;
         }
@@ -103,7 +94,7 @@ public class CameraView implements SurfaceHolder.Callback{
         p.setPreviewSize(procSize_.width, procSize_.height);
         
         camera_.setParameters(p);
-        camera_.setDisplayOrientation(90);
+       // camera_.setDisplayOrientation(90);
         try {
             camera_.setPreviewDisplay(surfaceHolder_);
         } catch ( Exception ex) {
@@ -120,6 +111,7 @@ public class CameraView implements SurfaceHolder.Callback{
 
     @Override
     public void surfaceChanged(SurfaceHolder sh, int format, int w, int h){
+    	
     }
     
 	@Override

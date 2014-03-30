@@ -2,31 +2,26 @@ package com.example.andraft;
 
 import static com.statica.andraft.Utils.LOG_TAG;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
 public class MyRequest {
+	
 	private String url;
 	private String status;
 	private String origResponse;
@@ -38,7 +33,6 @@ public class MyRequest {
 	private String pass;
 	private String message;
 	private JSONObject jsonResponse,jsonRequest;
-	
 
 	public Long getId() {
 		return id;

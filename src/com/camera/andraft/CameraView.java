@@ -111,19 +111,20 @@ public class CameraView implements SurfaceHolder.Callback{
 
     @Override
     public void surfaceChanged(SurfaceHolder sh, int format, int w, int h){
-    	
+    	Log.d("myLogs","SURFACE CHANGED");
     }
     
 	@Override
     public void surfaceCreated(SurfaceHolder sh){ 
+		Log.d("myLogs","SURFACE CREATED");
         setupCamera();      
         
         if ( cameraReadyCb_ != null)
-            cameraReadyCb_.onCameraReady();
-    }
+            cameraReadyCb_.onCameraReady();}
     
 	@Override
     public void surfaceDestroyed(SurfaceHolder sh){
+		Log.d("myLogs","SURFACE DESTROY");
         Release();
     }
 }

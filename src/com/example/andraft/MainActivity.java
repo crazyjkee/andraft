@@ -45,6 +45,10 @@ import com.camera.andraft.CameraView;
 import com.getgeo.andraft.PlatformSpecificImplementationFactory;
 import com.statica.andraft.Utils;
 
+import de.tavendo.autobahn.WebSocketConnection;
+import de.tavendo.autobahn.WebSocketException;
+import de.tavendo.autobahn.WebSocketHandler;
+
 public class MainActivity extends Activity implements View.OnTouchListener,
 		CameraView.CameraReadyCallback{
 	public enum sostoyanie {
@@ -69,18 +73,20 @@ public class MainActivity extends Activity implements View.OnTouchListener,
 	ArrayList<View> arView;
 	String status;
 	String device_id;
+	SocketClient socket;
 
 	private SurfaceHolder holder;
 	private boolean start = false;
 	AsyncHttpPost mt;
 	private Handler handler;
+	private final WebSocketConnection mConnection = new WebSocketConnection();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		sostoyanie sost = sostoyanie.start;
 		handler = new Handler();
-
+        socket= new SocketClient(Utils.SOCKET_URL);
 		Log.d("myLogs", "onCreate()");
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -110,6 +116,7 @@ public class MainActivity extends Activity implements View.OnTouchListener,
 
 		device_id = Secure.getString(this.getContentResolver(),
 				Secure.ANDROID_ID);
+		initCamera();
 	}
 
 	public void onToggleButtonClick(View button) {
@@ -134,7 +141,6 @@ public class MainActivity extends Activity implements View.OnTouchListener,
 		Log.d("myLogs", "onPause");
 		cameraView_.StopPreview();
 		cameraView_.Release();
-		cameraView_ = null;
 	}
 
 	private void initCamera() {
@@ -162,42 +168,7 @@ public class MainActivity extends Activity implements View.OnTouchListener,
 		}
 	};
 
-	public void changeSecret(View v) {
-		showDialog(DIALOG_EXIT);
-	}
-
-	@Override
-	@Deprecated
-	protected Dialog onCreateDialog(int id) {
-		if (id == DIALOG_EXIT) {
-			AlertDialog.Builder adb = new AlertDialog.Builder(this);
-			adb.setTitle(R.string.changeSecretText);
-			adb.setMessage(R.string.save_data);
-			// view = (LinearLayout)
-			// getLayoutInflater().inflate(R.layout.dialog,
-			// null);
-			// adb.setView(view);
-			adb.setCancelable(false);
-			// secret = (EditText) view.findViewById(R.id.Secret);
-			adb.setOnKeyListener(new DialogInterface.OnKeyListener() {
-				@Override
-				public boolean onKey(DialogInterface dialog, int keyCode,
-						KeyEvent event) {
-					if (event.getAction() == KeyEvent.ACTION_DOWN
-							&& (keyCode == KeyEvent.KEYCODE_ENTER)) {
-
-						saveData();
-						dialog.cancel();
-						return true;
-					}
-					return false;
-				}
-
-			});
-			return adb.create();
-		}
-		return super.onCreateDialog(id);
-	}
+	
 
 	void saveData() {
 
@@ -212,8 +183,6 @@ public class MainActivity extends Activity implements View.OnTouchListener,
 	protected void onResume() {
 		super.onResume();
 		Log.d("myLogs", "onResume()");
-		initCamera();
-
 		// postRequest();
 	}
 
@@ -222,14 +191,43 @@ public class MainActivity extends Activity implements View.OnTouchListener,
 		cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		nInfo = cm.getActiveNetworkInfo();
 		if (nInfo != null && nInfo.isConnected()) {
-			start = true;
+			start();
+			/*start = true;
 			mt = new AsyncHttpPost();
 			sost = sostoyanie.start;
 			ready();
-			mt.execute();
+			mt.execute();*/
 		} else
 			Toast.makeText(this, "Can't connect to Network", Toast.LENGTH_SHORT)
 					.show();
+	}
+	
+	public void start() {
+		Log.d("myLogs","START");
+
+		try {
+			mConnection.connect(Utils.SOCKET_URL, new WebSocketHandler() {
+
+				@Override
+				public void onOpen() {
+					Log.d("myLogs", "Status: Connected to " + Utils.SOCKET_URL);
+					mConnection.sendTextMessage("Hello, world!");
+				}
+
+				@Override
+				public void onTextMessage(String payload) {
+					Log.d("myLogs", "Got echo: " + payload);
+				}
+
+				@Override
+				public void onClose(int code, String reason) {
+					Log.d("myLogs", "Connection lost.");
+				}
+			});
+		} catch (WebSocketException e) {
+
+			Log.d("myLogs", e.toString());
+		}
 	}
 
 	class AsyncHttpPost extends AsyncTask<String, Integer, String> {
@@ -252,6 +250,7 @@ public class MainActivity extends Activity implements View.OnTouchListener,
 
 		@Override
 		protected String doInBackground(String... params) {
+
 
 			if (start == true) {
 				myRequest_ = new MyRequest(Utils.REGISTER_URL);
